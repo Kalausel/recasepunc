@@ -42,6 +42,7 @@ default_flavors = {
     'zh-Hant': 'ckiplab/bert-base-chinese',
     'zh-Hans': 'ckiplab/bert-base-chinese',
     'it': 'dbmdz/bert-base-italian-uncased',
+    'de': 'dbmdz/bert-base-german-cased',
 }
 
 
@@ -53,7 +54,7 @@ class Config(argparse.Namespace):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        assert self.lang in ['fr', 'en', 'zh', 'zh-Hant', 'zh-Hans', 'it']
+        assert self.lang in ['fr', 'en', 'zh', 'zh-Hant', 'zh-Hans', 'it', 'de']
 
         if 'lang' in kwargs and ('flavor' not in kwargs or kwargs['flavor'] is None):
             self.flavor = default_flavors[self.lang]

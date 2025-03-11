@@ -58,9 +58,6 @@ class Config(argparse.Namespace):
         if 'lang' in kwargs and ('flavor' not in kwargs or kwargs['flavor'] is None):
             self.flavor = default_flavors[self.lang]
 
-        # print(self.lang, self.flavor)
-
-
 def init_random(seed):
     # make sure everything is deterministic
     os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'
@@ -256,7 +253,9 @@ def run_eval(config, test_x_fn, test_y_fn, checkpoint_path):
     test_set = TensorDataset(X_test, Y_test)
     test_loader = DataLoader(test_set, batch_size=config.batch_size)
 
-    loaded = torch.load(checkpoint_path, map_location=config.device)
+    with torch.serialization.safe_globals([BertTokenizer, WordpieceTokenizer]):
+        loaded = torch.load(checkpoint_path, map_location=config.device
+                            , weights_only=False)
     if 'config' in loaded:
         config = Config(**loaded['config'])
         init(config)
@@ -280,7 +279,9 @@ def recase(token, label):
 class CasePuncPredictor:
     def __init__(self, checkpoint_path, lang=default_config.lang, flavor=default_config.flavor,
                  device=default_config.device):
-        loaded = torch.load(checkpoint_path, map_location=device if torch.cuda.is_available() else 'cpu')
+        with torch.serialization.safe_globals([BertTokenizer, WordpieceTokenizer]):
+            loaded = torch.load(checkpoint_path, map_location=device if torch.cuda.is_available() else 'cpu'
+                            , weights_only=False)
         if 'config' in loaded:
             self.config = Config(**loaded['config'])
         else:
@@ -344,7 +345,9 @@ class CasePuncPredictor:
 
 
 def generate_predictions(config, checkpoint_path):
-    loaded = torch.load(checkpoint_path, map_location=config.device if torch.cuda.is_available() else 'cpu')
+    with torch.serialization.safe_globals([BertTokenizer, WordpieceTokenizer]):
+        loaded = torch.load(checkpoint_path, map_location=config.device if torch.cuda.is_available() else 'cpu'
+                            , weights_only=False)
     if 'config' in loaded:
         config = Config(**loaded['config'])
         init(config)

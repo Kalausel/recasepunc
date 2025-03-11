@@ -289,8 +289,8 @@ class CasePuncPredictor:
             self.config = Config(lang=lang, flavor=flavor, device=device)
         init(self.config)
 
-        self.model = Model(flavor, self.config.device)
-        self.model.load_state_dict(loaded['model_state_dict'])
+        self.model = Model(self.config.flavor, self.config.device)
+        self.model.load_state_dict(loaded['model_state_dict'], strict=False)
         self.model.to(self.config.device)
 
         self.rev_case = {b: a for a, b in case.items()}
